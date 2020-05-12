@@ -24,6 +24,6 @@ if __name__ == "__main__":
     # This allows easy placement of apps within the interior
     # woo_api directory.
     current_path = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(os.path.join(current_path, "project_name"))
+    sys.path.append(os.path.join(current_path, "bookit"))
 
     execute_from_command_line(sys.argv)

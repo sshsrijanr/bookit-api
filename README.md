@@ -1,1 +1,6 @@
-# django 2.2 template
+# BookIt
+
+> - Admin Login
+> - Event CRUD
+> - Event Registration Creation
+> - Registration Stats

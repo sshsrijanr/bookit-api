@@ -22,7 +22,7 @@ from django.core.wsgi import get_wsgi_application
 # woo_api directory.
 app_path = os.path.abspath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), os.pardir))
-sys.path.append(os.path.join(app_path, "project_name"))
+sys.path.append(os.path.join(app_path, "bookit"))
 # We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
 # if running multiple sites in the same mod_wsgi process. To fix this, use
 # mod_wsgi daemon mode with each site in its own daemon process, or use
