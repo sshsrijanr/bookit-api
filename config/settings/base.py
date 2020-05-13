@@ -70,7 +70,11 @@ SITE_ID = 1
 
 LOCAL_APPS = [
     'bookit.common',
+    'bookit.access',
+    'bookit.session',
 ]
+
+AUTH_USER_MODEL = 'access.User'
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
