@@ -13,5 +13,8 @@ class User(AbstractUser, UUIDModel):
 
 class Profile(TimeStampedUUIDModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    mobile_number = models.BigIntegerField()
-    id_card = models.ForeignKey(Attachment, on_delete=models.CASCADE)
+    mobile_number = models.BigIntegerField(null=True, blank=True)
+    id_card = models.ForeignKey(Attachment, null=True, blank=True, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ('created',)

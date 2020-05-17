@@ -1,12 +1,12 @@
 from django.conf import settings
-from django.urls import include, path, re_path
 from django.contrib import admin
+from django.urls import include, path, re_path
 from rest_framework.documentation import include_docs_urls
 
-import os
-
 v1_urls = [
-    re_path(r'', include('bookit.access.urls'))
+    re_path(r'', include('bookit.access.urls')),
+    re_path(r'', include('bookit.common.urls')),
+    re_path(r'', include('bookit.session.urls')),
 ]
 
 urlpatterns = [
