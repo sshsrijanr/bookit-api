@@ -12,6 +12,6 @@ class User(AbstractUser, UUIDModel):
 
 
 class Profile(TimeStampedUUIDModel):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     mobile_number = models.BigIntegerField()
     id_card = models.ForeignKey(Attachment, on_delete=models.CASCADE)

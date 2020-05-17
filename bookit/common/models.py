@@ -122,8 +122,8 @@ class Attachment(TimeStampedUUIDModel):
         self.path.file.seek(0)
         super(Attachment, self).save()
 
-    def get_absolute_url(self):
-        return str(self.type.path.url)
+    # def get_absolute_url(self):
+    #     return str(self.path.)
 
     class Meta:
         ordering = ('created',)

@@ -6,6 +6,7 @@ from rest_framework.documentation import include_docs_urls
 import os
 
 v1_urls = [
+    re_path(r'', include('bookit.access.urls'))
 ]
 
 urlpatterns = [
