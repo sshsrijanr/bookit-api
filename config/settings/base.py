@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/2.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
-
 import json
 import os
 from pathlib import Path
@@ -20,29 +19,10 @@ SETTINGS_DIR = Path(__file__).resolve().parent
 CONFIG_DIR = SETTINGS_DIR.parent
 PROJECT_DIR = CONFIG_DIR.parent
 APPS_DIR = PROJECT_DIR / 'bookit'
-
-# READ SECRETJSON FILE
-SECRETS_FILE = str(SETTINGS_DIR / 'secrets.json')
-if os.path.exists(SECRETS_FILE) is False:
-    raise ImproperlyConfigured(
-        " Please add 'secrets.json' file in config/ folder.")
-
-with open(SECRETS_FILE) as f:
-    secrets = json.loads(f.read())
-
-
-def get_secret(setting, secrets=secrets):
-    '''get the secret variable value of return exception'''
-    try:
-        return secrets[setting]
-    except KeyError:
-        error_message = 'Set the {0} environment variable'.format(setting)
-        raise ImproperlyConfigured(error_message)
-
-
+BASE_DIR = APPS_DIR
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
-SECRET_KEY = get_secret('SECRET_KEY')
+SECRET_KEY = "book-8agr4sxfon*%ttk+oks-&e$7gr7$9)0vruy1^g+lwoq-6ju*8o-it"
 
 # Application definition
 DJANGO_APPS = [
@@ -115,11 +95,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': get_secret('PG_DATABASE_NAME'),
-        'USER': get_secret('PG_DATABASE_USER'),
-        'PASSWORD': get_secret('PG_DATABASE_PASSWORD'),
-        'HOST': get_secret('PG_DATABASE_HOST'),
-        'PORT': get_secret('PG_DATABASE_PORT'),
+        'NAME': 'bookit_dev',
+        'USER': 'postgres',
+        'PASSWORD': 'admin1234',
+        'HOST': 'localhost',
+        'PORT': 5432,
     }
 }
 
@@ -194,15 +174,6 @@ CORS_ALLOW_HEADERS = ('x-requested-with', 'content-type', 'accept', 'origin',
                       'authorization', 'x-csrftoken', 'xsrfheadername',
                       'xsrfcookiename',
                       'x-devtools-emulate-network-conditions-client-id')
-
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-EMAIL_USE_TLS = True
-EMAIL_HOST = get_secret('EMAIL_HOST')
-EMAIL_HOST_USER = get_secret('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = get_secret('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = get_secret('EMAIL_PORT')
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",

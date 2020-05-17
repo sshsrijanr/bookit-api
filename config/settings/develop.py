@@ -1,3 +1,5 @@
+import django_heroku
+
 from .base import *
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -14,3 +16,5 @@ except ImportError:
 DJANGO_APPS = ['django_extensions']
 
 INSTALLED_APPS += DJANGO_APPS
+
+django_heroku.settings(locals())
