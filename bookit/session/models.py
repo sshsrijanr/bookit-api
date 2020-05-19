@@ -39,6 +39,6 @@ class Booking(TimeStampedUUIDModel):
 
     def __str__(self):
         return "{} {}".format(self.registration_type, self.event.title)
-    
+
     class Meta:
         ordering = ('created',)
