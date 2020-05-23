@@ -3,7 +3,7 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, exceptions
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 
 from bookit.access.models import User, Profile
 from bookit.access.serializers import ProfileSerializer
@@ -15,14 +15,14 @@ class LanguageViewSet(viewsets.ModelViewSet):
     queryset = Language.objects.all()
     serializer_class = LanguageSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class EventViewSet(viewsets.ModelViewSet):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_serializer_context(self):
         return {"request": self.request}
@@ -31,8 +31,7 @@ class EventViewSet(viewsets.ModelViewSet):
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     @transaction.atomic()
     def create(self, request, *args, **kwargs):
@@ -98,6 +97,8 @@ class BookingViewSet(viewsets.ModelViewSet):
         event_obj = get_object_or_404(Event, pk=event)
         if number_of_tickets:
             booked_seats = event_obj.booking_set.aggregate(booked=Sum('number_of_tickets'))['booked']
+            if booked_seats == None:
+                booked_seats = 0
             if event_obj.number_of_seats - booked_seats - number_of_tickets < 0:
                 raise exceptions.ValidationError('Not enough seats available!')
         return super(BookingViewSet, self).create(request, *args, **kwargs)
