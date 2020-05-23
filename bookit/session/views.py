@@ -1,14 +1,26 @@
 from django.db import transaction
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, exceptions
+from django.utils import timezone
+from rest_framework import exceptions, viewsets
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework.filters import SearchFilter
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 
-from bookit.access.models import User, Profile
+from bookit.access.models import Profile, User
 from bookit.access.serializers import ProfileSerializer
-from .models import Language, Event, Booking
-from .serializers import LanguageSerializer, EventSerializer, BookingSerializer
+
+from .models import Booking, Event, Language, Tags
+from .serializers import (BookingSerializer, EventSerializer,
+                          EventDetailSerializer, LanguageSerializer,
+                          TagsSerializer)
+
+
+class TagViewSet(viewsets.ModelViewSet):
+    queryset = Tags.objects.all()
+    serializer_class = TagsSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
 
 class LanguageViewSet(viewsets.ModelViewSet):
@@ -23,9 +35,20 @@ class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
+    filter_backends = [SearchFilter]
+    search_fields = ['title', 'city']
 
     def get_serializer_context(self):
         return {"request": self.request}
+
+    def get_serializer_class(self):
+        if (self.action == 'retrieve'):
+            return EventDetailSerializer
+        else:
+            return EventSerializer
+
+    def get_queryset(self):
+        return self.queryset.exclude(start_time__lt=timezone.now())
 
 
 class BookingViewSet(viewsets.ModelViewSet):
@@ -39,15 +62,20 @@ class BookingViewSet(viewsets.ModelViewSet):
         if not user_data:
             raise exceptions.ValidationError("user key is required!")
         if not user_data.get('first_name', None):
-            raise exceptions.ValidationError("user key does not contains first_name - is required!")
+            raise exceptions.ValidationError(
+                "user key does not contains first_name - is required!")
         if not user_data.get('last_name', None):
-            raise exceptions.ValidationError("user key does not contains last_name -  is required!")
+            raise exceptions.ValidationError(
+                "user key does not contains last_name -  is required!")
         if not user_data.get('email', None):
-            raise exceptions.ValidationError("user key does not contains email -  is required!")
+            raise exceptions.ValidationError(
+                "user key does not contains email -  is required!")
         if not user_data.get('mobile_number', None):
-            raise exceptions.ValidationError("user key does not contains mobile_number -  is required!")
+            raise exceptions.ValidationError(
+                "user key does not contains mobile_number -  is required!")
         if not user_data.get('id_card', None):
-            raise exceptions.ValidationError("user key does not contains id_card -  is required!")
+            raise exceptions.ValidationError(
+                "user key does not contains id_card -  is required!")
         res = User.objects.filter(email=user_data['email']).exists()
 
         if not res:
@@ -65,8 +93,9 @@ class BookingViewSet(viewsets.ModelViewSet):
             serializer.save()
         else:
             user = User.objects.filter(email=user_data['email']).first()
-            User.objects.filter(id=user.id).update(first_name=user_data['first_name'],
-                                                   last_name=user_data['last_name'])
+            User.objects.filter(id=user.id).update(
+                first_name=user_data['first_name'],
+                last_name=user_data['last_name'])
             try:
                 profile = user.profile
                 profile_data = {
@@ -74,7 +103,8 @@ class BookingViewSet(viewsets.ModelViewSet):
                     "mobile_number": user_data['mobile_number'],
                     "id_card": user_data['id_card']
                 }
-                serializer = ProfileSerializer(data=profile_data, instance=profile)
+                serializer = ProfileSerializer(data=profile_data,
+                                               instance=profile)
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
             except Profile.DoesNotExist:
@@ -96,7 +126,8 @@ class BookingViewSet(viewsets.ModelViewSet):
         event = request.data.get('event', None)
         event_obj = get_object_or_404(Event, pk=event)
         if number_of_tickets:
-            booked_seats = event_obj.booking_set.aggregate(booked=Sum('number_of_tickets'))['booked']
+            booked_seats = event_obj.booking_set.aggregate(
+                booked=Sum('number_of_tickets'))['booked']
             if booked_seats == None:
                 booked_seats = 0
             if event_obj.number_of_seats - booked_seats - number_of_tickets < 0:
