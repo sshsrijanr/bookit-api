@@ -2,9 +2,10 @@ from django.db import transaction
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import exceptions, viewsets
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.filters import SearchFilter
+from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
 
 from bookit.access.models import Profile, User
@@ -35,8 +36,10 @@ class EventViewSet(viewsets.ModelViewSet):
     serializer_class = EventSerializer
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
-    filter_backends = [SearchFilter]
+    filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
+    filterset_fields = ['tags', 'number_of_seats', 'languages', 'city']
     search_fields = ['title', 'city']
+    ordering_fields = ['views_count', 'cost_per_person', 'start_time']
 
     def get_serializer_context(self):
         return {"request": self.request}
@@ -55,6 +58,8 @@ class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
     permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['event']
 
     @transaction.atomic()
     def create(self, request, *args, **kwargs):
