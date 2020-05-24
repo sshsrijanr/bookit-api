@@ -44,6 +44,8 @@ THIRD_PARTY_APPS = [
     'rest_auth',
     'rest_auth.registration',
     'rest_framework_docs',
+    'allauth',
+    'allauth.account',
 ]
 
 SITE_ID = 1
@@ -134,7 +136,6 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/'
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/'
-
 
 LANGUAGE_CODE = 'en-us'
 

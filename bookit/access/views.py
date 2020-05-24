@@ -21,10 +21,13 @@ class UserViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         if request.data.get('profile', None):
             profile_data = request.data.get('profile', None)
-            serializer = ProfileSerializer(instance=instance.profile, data=profile_data, partial=True)
+            serializer = ProfileSerializer(instance=instance.profile,
+                                           data=profile_data,
+                                           partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-        return super(UserViewSet, self).partial_update(request, *args, **kwargs)
+        return super(UserViewSet, self).partial_update(request, *args,
+                                                       **kwargs)
 
     @action(methods=['GET'], detail=False, url_path='me')
     def me(self, request):
@@ -33,5 +36,6 @@ class UserViewSet(viewsets.ModelViewSet):
             profile = request.user.profile
         except Profile.DoesNotExist:
             Profile.objects.create(user=request.user)
-        return Response(self.serializer_class(instance=request.user, context=content).data,
+        return Response(self.serializer_class(instance=request.user,
+                                              context=content).data,
                         status=200)

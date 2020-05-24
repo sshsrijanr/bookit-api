@@ -48,7 +48,7 @@ class Event(TimeStampedEnumeratedUUIDModel):
 
 
 class Booking(TimeStampedUUIDModel):
-    REGISTRATION_TYPE = (('self', 'self'), ('Group', 'Group'),
+    REGISTRATION_TYPE = (('Self', 'Self'), ('Group', 'Group'),
                          ('Corporate', 'Corporate'), ('Others', 'Others'))
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
