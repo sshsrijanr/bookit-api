@@ -37,6 +37,8 @@ class Event(TimeStampedEnumeratedUUIDModel):
     city = models.TextField()
     terms_and_conditions = models.TextField()
     views_count = models.IntegerField(default=0)
+    venue = models.TextField()
+    duration = models.TextField()
 
     def __str__(self):
         return self.title
