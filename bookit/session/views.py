@@ -1,6 +1,7 @@
+import json
 from django.db import transaction
 from django.db.models import Sum, Count
-from django.db.models.functions import Cast
+from django.db.models.functions import Cast, ExtractMonth, ExtractYear
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
@@ -54,10 +55,11 @@ class EventViewSet(viewsets.ModelViewSet):
             return EventSerializer
 
     def get_queryset(self):
-        if self.request.user.is_anonymous:
-            return self.queryset.exclude(start_time__lt=timezone.now())
-        else:
+        is_admin = self.request.query_params.get('is_admin', None)
+        if is_admin and json.loads(is_admin) == True:
             return self.queryset
+        else:
+            return self.queryset.exclude(start_time__lte=timezone.now())
 
 
 class BookingViewSet(viewsets.ModelViewSet):
@@ -150,5 +152,27 @@ class BookingViewSet(viewsets.ModelViewSet):
 def booking_type_stats(request):
     results = Booking.objects.values('registration_type').annotate(
         type_count=Count('id')).order_by('registration_type').values(
-        'registration_type', 'type_count')
+            'registration_type', 'type_count')
+    return Response(results, status=200)
+
+
+@api_view(['GET'])
+def booking_event_stats(request, event):
+    event = get_object_or_404(Event, pk=event)
+    results = Booking.objects.filter(
+        event=event).values('registration_type').annotate(
+            type_count=Count('id')).order_by('registration_type').values(
+                'registration_type', 'type_count')
+    return Response(results, status=200)
+
+
+@api_view(['GET'])
+def monthly_booking_stats(request):
+    results = Booking.objects.annotate(
+        month=ExtractMonth('event__start_time'),
+        year=ExtractYear('event__start_time')).values(
+            'month', 'year',
+            'registration_type').annotate(type_count=Count('id')).order_by(
+                'year', 'month').values('month', 'year', 'registration_type',
+                                        'type_count')
     return Response(results, status=200)

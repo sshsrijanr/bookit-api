@@ -54,7 +54,7 @@ class Booking(TimeStampedUUIDModel):
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     registration_type = models.CharField(max_length=20,
                                          choices=REGISTRATION_TYPE,
-                                         default='self')
+                                         default='Self')
     number_of_tickets = models.IntegerField()
 
     def __str__(self):
