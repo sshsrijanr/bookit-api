@@ -41,7 +41,7 @@ class EventViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
-    filterset_fields = ['tags', 'number_of_seats', 'languages', 'city']
+    filterset_fields = ['number_of_seats', 'languages', 'city']
     search_fields = ['title', 'city']
     ordering_fields = ['views_count', 'cost_per_person', 'start_time']
 
@@ -55,6 +55,10 @@ class EventViewSet(viewsets.ModelViewSet):
             return EventSerializer
 
     def get_queryset(self):
+        tags = self.request.query_params.get('tags', None)
+        if tags:
+            tags = json.loads(tags)
+            self.queryset = self.queryset.filter(tags__in=tags)
         is_admin = self.request.query_params.get('is_admin', None)
         if is_admin and json.loads(is_admin) == True:
             return self.queryset
