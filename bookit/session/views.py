@@ -1,12 +1,15 @@
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Sum, Count
+from django.db.models.functions import Cast
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import exceptions, viewsets
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import api_view
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from rest_framework.response import Response
 
 from bookit.access.models import Profile, User
 from bookit.access.serializers import ProfileSerializer
@@ -45,13 +48,16 @@ class EventViewSet(viewsets.ModelViewSet):
         return {"request": self.request}
 
     def get_serializer_class(self):
-        if (self.action == 'retrieve'):
+        if self.action == 'retrieve':
             return EventDetailSerializer
         else:
             return EventSerializer
 
     def get_queryset(self):
-        return self.queryset.exclude(start_time__lt=timezone.now())
+        if self.request.user.is_anonymous:
+            return self.queryset.exclude(start_time__lt=timezone.now())
+        else:
+            return self.queryset
 
 
 class BookingViewSet(viewsets.ModelViewSet):
@@ -133,8 +139,16 @@ class BookingViewSet(viewsets.ModelViewSet):
         if number_of_tickets:
             booked_seats = event_obj.booking_set.aggregate(
                 booked=Sum('number_of_tickets'))['booked']
-            if booked_seats == None:
+            if booked_seats is None:
                 booked_seats = 0
             if event_obj.number_of_seats - booked_seats - number_of_tickets < 0:
                 raise exceptions.ValidationError('Not enough seats available!')
         return super(BookingViewSet, self).create(request, *args, **kwargs)
+
+
+@api_view(['GET'])
+def booking_type_stats(request):
+    results = Booking.objects.values('registration_type').annotate(
+        type_count=Count('id')).order_by('registration_type').values(
+        'registration_type', 'type_count')
+    return Response(results, status=200)
