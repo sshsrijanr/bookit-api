@@ -59,7 +59,10 @@ class TimeStampedEnumeratedUUIDModel(EnumeratedUUIDModel, TimeStampedModel):
 
 
 def content_file_name(instance, filename):
-    folder_name = {'images': ['jpeg', 'jpg', 'png']}
+    folder_name = {
+        'images': ['jpeg', 'jpg', 'png'],
+        'documents': ['pdf', 'doc', 'docx']
+    }
 
     attachment_type = None
     if not instance.attachment_type:
@@ -79,8 +82,7 @@ def content_file_name(instance, filename):
         filepath += 'others' + os.path.sep
 
     # Date
-    filepath += time.strftime('%Y' + os.path.sep + '%m' + os.path.sep + '%d' +
-                              os.path.sep)
+    filepath += time.strftime('%Y' + os.path.sep)
     # Filename
     filepath += slugify(file) + '.' + ext
 
@@ -126,4 +128,4 @@ class Attachment(TimeStampedUUIDModel):
     #     return str(self.path.)
 
     class Meta:
-        ordering = ('created',)
+        ordering = ('created', )
