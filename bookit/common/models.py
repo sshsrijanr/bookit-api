@@ -2,8 +2,10 @@ import hashlib
 import os
 import time
 import uuid
+import pyimgur
 from mimetypes import MimeTypes
 
+from django.conf import settings
 from django.db import models
 from slugify import slugify
 
@@ -104,6 +106,7 @@ class Attachment(TimeStampedUUIDModel):
                                   blank=True,
                                   db_index=True)
     name = models.CharField(max_length=100, null=True, blank=True)
+    image_url = models.URLField(null=True, blank=True)
 
     def __str__(self):
         return "{id} ({filename})".format(id=self.id, filename=self.path.name)
@@ -123,9 +126,12 @@ class Attachment(TimeStampedUUIDModel):
 
         self.path.file.seek(0)
         super(Attachment, self).save()
-
-    # def get_absolute_url(self):
-    #     return str(self.path.)
-
+        file_path = getattr(settings, "MEDIA_ROOT") + self.path.url
+        file_path = file_path.replace('media/media','media')
+        im = pyimgur.Imgur( getattr(settings, "CLIENT_ID_IMGUR"))
+        image_details = image_url = im.upload_image(file_path,title=self.path.name)
+        self.image_url = image_details.link
+        super(Attachment, self).save()
+        
     class Meta:
         ordering = ('created', )

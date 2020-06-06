@@ -198,3 +198,6 @@ REST_FRAMEWORK = {
 }
 
 API_VERSION = 'v1'
+
+
+CLIENT_ID_IMGUR = os.environ.get('CLIENT_ID_IMGUR')

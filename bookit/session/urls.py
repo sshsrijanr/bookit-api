@@ -1,7 +1,7 @@
 from config import OptionalSlashDefaultRouter
 from django.urls import re_path
 from .views import (LanguageViewSet, EventViewSet, BookingViewSet, TagViewSet,
-                    booking_type_stats, booking_event_stats,
+                    booking_type_stats, booking_event_stats, dashboard_stats,
                     monthly_booking_stats)
 router = OptionalSlashDefaultRouter()
 
@@ -14,6 +14,9 @@ urlpatterns = [
     re_path('booking-type-stats',
             booking_type_stats,
             name='booking_type_stats'),
+    re_path('dashboard-stats',
+            dashboard_stats,
+            name='dashboard_stats'),
     re_path('monthly-booking-stats',
             monthly_booking_stats,
             name='monthly_booking_stats'),

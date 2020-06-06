@@ -175,8 +175,19 @@ def monthly_booking_stats(request):
     results = Booking.objects.annotate(
         month=ExtractMonth('event__start_time'),
         year=ExtractYear('event__start_time')).values(
-            'month', 'year',
-            'registration_type').annotate(type_count=Count('id')).order_by(
-                'year', 'month').values('month', 'year', 'registration_type',
-                                        'type_count')
+            'month', 'year').annotate(count=Count('id')).order_by(
+                'year', 'month').values('month', 'year','count')
     return Response(results, status=200)
+
+
+
+@api_view(['GET'])
+def dashboard_stats(request):
+    tickets_count = Booking.objects.aggregate(tickets_count=Sum('number_of_tickets'))['tickets_count']
+    event_seats = Event.objects.aggregate(event_seats=Sum('number_of_seats'))['event_seats']
+    data = {
+        "total_event":Event.objects.count(),
+        "total_booking":tickets_count,
+        "booking_percentage":round(float(tickets_count/event_seats), 2)*100
+    }
+    return Response(data, status=200)
