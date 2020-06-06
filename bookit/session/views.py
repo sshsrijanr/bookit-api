@@ -61,9 +61,10 @@ class EventViewSet(viewsets.ModelViewSet):
             self.queryset = self.queryset.filter(tags__in=tags)
         is_admin = self.request.query_params.get('is_admin', None)
         if is_admin and json.loads(is_admin) == True:
-            return self.queryset
+            return self.queryset.distinct()
         else:
-            return self.queryset.exclude(start_time__lte=timezone.now())
+            return self.queryset.exclude(
+                start_time__lte=timezone.now()).distinct()
 
 
 class BookingViewSet(viewsets.ModelViewSet):
@@ -176,18 +177,20 @@ def monthly_booking_stats(request):
         month=ExtractMonth('event__start_time'),
         year=ExtractYear('event__start_time')).values(
             'month', 'year').annotate(count=Count('id')).order_by(
-                'year', 'month').values('month', 'year','count')
+                'year', 'month').values('month', 'year', 'count')
     return Response(results, status=200)
-
 
 
 @api_view(['GET'])
 def dashboard_stats(request):
-    tickets_count = Booking.objects.aggregate(tickets_count=Sum('number_of_tickets'))['tickets_count']
-    event_seats = Event.objects.aggregate(event_seats=Sum('number_of_seats'))['event_seats']
+    tickets_count = Booking.objects.aggregate(
+        tickets_count=Sum('number_of_tickets'))['tickets_count']
+    event_seats = Event.objects.aggregate(
+        event_seats=Sum('number_of_seats'))['event_seats']
     data = {
-        "total_event":Event.objects.count(),
-        "total_booking":tickets_count,
-        "booking_percentage":round(float(tickets_count/event_seats), 2)*100
+        "total_event": Event.objects.count(),
+        "total_booking": tickets_count,
+        "booking_percentage":
+        round(float(tickets_count / event_seats), 2) * 100
     }
     return Response(data, status=200)
