@@ -1,3 +1,4 @@
+import json
 from django.db.models import Sum
 from rest_framework import serializers
 
@@ -47,6 +48,11 @@ class EventDetailSerializer(EventSerializer):
     views_count = serializers.SerializerMethodField()
 
     def get_views_count(self, obj):
+        request = self.context.get('request', None)
+        if request and request.query_params.get('is_admin', None):
+            is_admin = request.query_params.get('is_admin', None)
+            if json.loads(is_admin):
+                return obj.views_count
         obj.views_count += 1
         obj.save()
         return obj.views_count
