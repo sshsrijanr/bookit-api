@@ -43,7 +43,9 @@ class EventViewSet(viewsets.ModelViewSet):
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
     filterset_fields = ['number_of_seats', 'languages', 'city']
     search_fields = ['title', 'city']
-    ordering_fields = ['views_count', 'cost_per_person', 'start_time']
+    ordering_fields = [
+        'views_count', 'cost_per_person', 'start_time', 'created'
+    ]
 
     def get_serializer_context(self):
         return {"request": self.request}
