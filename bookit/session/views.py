@@ -191,7 +191,8 @@ def dashboard_stats(request):
         event_seats=Sum('number_of_seats'))['event_seats']
     data = {
         "total_event": Event.objects.count(),
-        "total_booking": tickets_count,
+        "total_booking": Booking.objects.count(),
+        "tickets_count": tickets_count,
         "booking_percentage":
         round(float(tickets_count / event_seats), 2) * 100
     }
