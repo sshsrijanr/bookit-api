@@ -176,8 +176,7 @@ def booking_event_stats(request, event):
 @api_view(['GET'])
 def monthly_booking_stats(request):
     results = Booking.objects.annotate(
-        month=ExtractMonth('event__start_time'),
-        year=ExtractYear('event__start_time')).values(
+        month=ExtractMonth('created'), year=ExtractYear('created')).values(
             'month', 'year').annotate(count=Count('id')).order_by(
                 'year', 'month').values('month', 'year', 'count')
     return Response(results, status=200)
